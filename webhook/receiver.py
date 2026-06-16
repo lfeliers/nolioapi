@@ -1,9 +1,12 @@
 import hmac
+import logging
 import os
 
 from fastapi import FastAPI, Header, HTTPException, Request
 
 from webhook.handlers import dispatch
+
+logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(redirect_slashes=False)
 

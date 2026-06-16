@@ -1,18 +1,22 @@
 from __future__ import annotations
 
+import logging
+
+logger = logging.getLogger("nolio.webhook")
+
 
 def handle_event(payload: dict) -> None:
     notif_type = payload["notif_type"]
     object_type = payload["object_type"]
     object_id = payload["object_id"]
     user_id = payload["user_id"]
-    date_object = payload.get("date_object")  # absent on deletes
+    date_object = payload.get("date_object")
 
     if notif_type == "deleted_event":
-        print(f"[event] deleted {object_type} #{object_id} by user {user_id}")
+        logger.info("[event] deleted %s #%s by user %s", object_type, object_id, user_id)
         return
 
-    print(f"[event] {notif_type} — {object_type} #{object_id} at {date_object} by user {user_id}")
+    logger.info("[event] %s — %s #%s at %s by user %s", notif_type, object_type, object_id, date_object, user_id)
 
 
 def handle_metric(payload: dict) -> None:
@@ -23,10 +27,10 @@ def handle_metric(payload: dict) -> None:
     date_object = payload.get("date_object")
 
     if notif_type == "deleted_metric":
-        print(f"[metric] deleted #{object_id} (type={metric_type}) by user {user_id}")
+        logger.info("[metric] deleted #%s (type=%s) by user %s", object_id, metric_type, user_id)
         return
 
-    print(f"[metric] {notif_type} — type={metric_type} #{object_id} at {date_object} by user {user_id}")
+    logger.info("[metric] %s — type=%s #%s at %s by user %s", notif_type, metric_type, object_id, date_object, user_id)
 
 
 def handle_planned(payload: dict) -> None:
@@ -37,10 +41,10 @@ def handle_planned(payload: dict) -> None:
     date_object = payload.get("date_object")
 
     if notif_type == "deleted_planned_event":
-        print(f"[planned] deleted {object_type} #{object_id} for athlete {user_id}")
+        logger.info("[planned] deleted %s #%s for athlete %s", object_type, object_id, user_id)
         return
 
-    print(f"[planned] {notif_type} — {object_type} #{object_id} at {date_object} for athlete {user_id}")
+    logger.info("[planned] %s — %s #%s at %s for athlete %s", notif_type, object_type, object_id, date_object, user_id)
 
 
 def dispatch(payload: dict) -> None:
@@ -48,7 +52,7 @@ def dispatch(payload: dict) -> None:
     livemode = payload["livemode"]
 
     if not livemode:
-        print(f"[test delivery] notif_type={notif_type}")
+        logger.info("[test delivery] notif_type=%s", notif_type)
 
     # Check "planned" BEFORE "event" — new_planned_event contains both substrings
     if "planned" in notif_type:
@@ -58,4 +62,4 @@ def dispatch(payload: dict) -> None:
     elif "event" in notif_type:
         handle_event(payload)
     else:
-        print(f"[webhook] unknown notif_type={notif_type!r}, payload={payload}")
+        logger.warning("[webhook] unknown notif_type=%r payload=%s", notif_type, payload)
