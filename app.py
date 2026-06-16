@@ -1,8 +1,10 @@
 import os
 import secrets
+
 import streamlit as st
-from auth.nolio_auth import get_authorize_url, exchange_code_for_token, get_user
-from db.mongo import upsert_user, delete_user
+
+from auth.nolio_auth import exchange_code_for_token, get_authorize_url, get_user
+from db.mongo import delete_user, upsert_user
 
 REDIRECT_URI = os.environ.get("NOLIO_REDIRECT_URI", "http://localhost:8501")
 
