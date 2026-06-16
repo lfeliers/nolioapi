@@ -7,7 +7,7 @@ from webhook.handlers import dispatch
 
 app = FastAPI()
 
-WEBHOOK_KEY = os.environ["NOLIO_WEBHOOK_KEY"]
+WEBHOOK_KEY = os.environ.get("NOLIO_WEBHOOK_KEY", "")
 
 
 @app.post("/webhook/nolio/")
