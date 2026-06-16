@@ -17,7 +17,7 @@ def get_authorize_url(redirect_uri: str, state: str) -> str:
     )
 
 
-def exchange_code_for_token(code: str, redirect_uri: str) -> str:
+def exchange_code_for_token(code: str, redirect_uri: str) -> dict:
     resp = requests.post(
         f"{BASE_URL}/token/",
         auth=(CLIENT_ID, CLIENT_SECRET),
@@ -28,7 +28,7 @@ def exchange_code_for_token(code: str, redirect_uri: str) -> str:
         },
     )
     resp.raise_for_status()
-    return resp.json()["access_token"]
+    return resp.json()
 
 
 def get_user(token: str) -> dict:
