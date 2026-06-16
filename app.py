@@ -1,9 +1,10 @@
+import hashlib
 import os
 import secrets
 
 import streamlit as st
 
-from auth.nolio_auth import exchange_code_for_token, get_authorize_url, get_user
+from auth.nolio_auth import exchange_code_for_token, get_authorize_url
 from db.mongo import delete_user, upsert_user
 
 REDIRECT_URI = os.environ.get("NOLIO_REDIRECT_URI", "http://localhost:8501")
@@ -25,16 +26,14 @@ if "code" in params and "nolio_token" not in st.session_state:
             try:
                 token_data = exchange_code_for_token(code, REDIRECT_URI)
                 access_token = token_data["access_token"]
-                user = get_user(access_token)
-                user_id = str(user["id"])
+                user_id = hashlib.sha256(access_token.encode()).hexdigest()[:16]
                 upsert_user(
                     user_id=user_id,
                     token=access_token,
-                    token_type="Bearer",
-                    profile=user,
+                    token_type=token_data.get("token_type", "Bearer"),
+                    profile={},
                 )
                 st.session_state["nolio_token"] = access_token
-                st.session_state["nolio_user"] = user
                 st.session_state["nolio_user_id"] = user_id
                 st.session_state["oauth_state"] = secrets.token_urlsafe(16)
                 st.query_params.clear()
@@ -43,16 +42,13 @@ if "code" in params and "nolio_token" not in st.session_state:
                 st.error(f"Failed to link account: {e}")
 
 # Linked state
-if "nolio_user" in st.session_state:
-    user = st.session_state["nolio_user"]
+if "nolio_token" in st.session_state:
     st.success("Nolio account linked!")
-    st.json(user)
     if st.button("Unlink Account"):
         user_id = st.session_state.get("nolio_user_id")
         if user_id:
             delete_user(user_id)
-        del st.session_state["nolio_token"]
-        del st.session_state["nolio_user"]
+        st.session_state.pop("nolio_token", None)
         st.session_state.pop("nolio_user_id", None)
         st.rerun()
 else:
