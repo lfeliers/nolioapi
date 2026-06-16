@@ -36,5 +36,6 @@ def get_user(token: str) -> dict:
         f"{BASE_URL}/get/user/",
         headers={"Authorization": f"Bearer {token}"},
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        raise RuntimeError(f"{resp.status_code} — {resp.text}")
     return resp.json()
