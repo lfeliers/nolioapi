@@ -20,13 +20,8 @@ params = st.query_params
 # Handle OAuth callback (Nolio redirected back with ?code=...)
 if "code" in params and "nolio_token" not in st.session_state:
     code = params["code"]
-    returned_state = params.get("state", "")
-    expected_state = st.session_state.get("oauth_state", "")
 
-    if expected_state and returned_state != expected_state:
-        st.error("Invalid state parameter — please try linking again.")
-    else:
-        with st.spinner("Linking your Nolio account…"):
+    with st.spinner("Linking your Nolio account…"):
             try:
                 token = exchange_code_for_token(code, REDIRECT_URI)
                 user = get_user(token)
