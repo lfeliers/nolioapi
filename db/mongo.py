@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+
 from pymongo import MongoClient
 from pymongo.collection import Collection
 
@@ -9,7 +10,7 @@ _client: MongoClient | None = None
 def _get_collection() -> Collection:
     global _client
     if _client is None:
-        _client = MongoClient(os.environ["MONGODB_URI"])
+        _client = MongoClient(os.environ["MONGO_URI"])
     db_name = os.environ.get("MONGODB_DB", "nolioapi")
     return _client[db_name]["users"]
 
