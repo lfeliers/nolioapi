@@ -10,6 +10,7 @@ app = FastAPI(redirect_slashes=False)
 WEBHOOK_KEY = os.environ.get("NOLIO_WEBHOOK_KEY", "")
 
 
+@app.post("/webhook/nolio")
 @app.post("/webhook/nolio/")
 async def nolio_webhook(
     request: Request,
