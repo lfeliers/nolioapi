@@ -3,7 +3,7 @@ import secrets
 
 import streamlit as st
 
-from auth.nolio_auth import exchange_code_for_token, get_authorize_url
+from auth.nolio_auth import exchange_code_for_token, get_authorize_url, get_user
 from db.mongo import delete_user, upsert_user
 
 REDIRECT_URI = os.environ.get("NOLIO_REDIRECT_URI", "http://localhost:8501")
@@ -24,7 +24,21 @@ if "code" in params and "nolio_token" not in st.session_state:
     with st.spinner("Linking your Nolio account…"):
             try:
                 token_data = exchange_code_for_token(code, REDIRECT_URI)
-                st.write("Token response:", token_data)  # temporary debug
+                access_token = token_data["access_token"]
+                user = get_user(access_token)
+                user_id = str(user["id"])
+                upsert_user(
+                    user_id=user_id,
+                    token=access_token,
+                    token_type="Bearer",
+                    profile=user,
+                )
+                st.session_state["nolio_token"] = access_token
+                st.session_state["nolio_user"] = user
+                st.session_state["nolio_user_id"] = user_id
+                st.session_state["oauth_state"] = secrets.token_urlsafe(16)
+                st.query_params.clear()
+                st.rerun()
             except Exception as e:
                 st.error(f"Failed to link account: {e}")
 
