@@ -5,7 +5,7 @@ from fastapi import FastAPI, Header, HTTPException, Request
 
 from webhook.handlers import dispatch
 
-app = FastAPI()
+app = FastAPI(redirect_slashes=False)
 
 WEBHOOK_KEY = os.environ.get("NOLIO_WEBHOOK_KEY", "")
 
