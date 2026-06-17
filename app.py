@@ -73,13 +73,14 @@ else:
 
         with col_list:
             st.subheader("Athletes")
-            for athlete in athletes:
-                if st.button(
-                    athlete.get("name"),
-                    key=f"athlete_{athlete['nolio_id']}",
-                    use_container_width=True,
-                ):
-                    st.session_state["selected_athlete_id"] = athlete["nolio_id"]
+            with st.container(height=600):
+                for athlete in athletes:
+                    if st.button(
+                        athlete.get("name"),
+                        key=f"athlete_{athlete['nolio_id']}",
+                        use_container_width=True,
+                    ):
+                        st.session_state["selected_athlete_id"] = athlete["nolio_id"]
 
         with col_detail:
             selected_id = st.session_state.get("selected_athlete_id")

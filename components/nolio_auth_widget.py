@@ -93,20 +93,6 @@ def render_navbar() -> None:
     profile = st.session_state.get("nolio_profile", {})
     display_name = profile.get("email", profile.get("username", "Nolio"))
 
-    st.markdown(
-        """
-        <style>
-        /* scrollable athlete list column */
-        div.main div[data-testid="stHorizontalBlock"] > div:first-child {
-            height: 75vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
     _, right = st.columns([6, 1])
     with right:
         if linked:
