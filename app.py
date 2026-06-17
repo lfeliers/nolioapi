@@ -81,19 +81,26 @@ else:
                     from_date, to_date = week_bounds()
                     trainings = fetch_and_sync_trainings(token, selected_id, from_date, to_date)
 
-                    if not trainings:
-                        st.caption("No trainings recorded this week.")
-                    else:
-                        for t in trainings:
-                            with st.container(border=True):
-                                c1, c2 = st.columns([3, 1])
-                                with c1:
+                    # Group trainings by date
+                    by_day: dict[str, list] = {}
+                    for t in trainings:
+                        by_day.setdefault(t["date_start"], []).append(t)
+
+                    monday = date.today() - timedelta(days=date.today().weekday())
+                    day_cols = st.columns(7)
+                    for i, col in enumerate(day_cols):
+                        day = monday + timedelta(days=i)
+                        day_str = day.isoformat()
+                        with col:
+                            st.markdown(f"**{day.strftime('%a')}**")
+                            st.caption(day.strftime("%d %b"))
+                            for t in by_day.get(day_str, []):
+                                with st.container(border=True):
                                     st.markdown(f"**{t.get('name', '—')}**")
-                                    st.caption(f"{t.get('sport', '')} · {t.get('date_start', '')}")
-                                with c2:
-                                    st.metric("Duration", fmt_duration(t.get("duration", 0)))
-                                if t.get("distance"):
-                                    st.caption(f"Distance: {t['distance']:.1f} km · Elevation: {t.get('elevation_gain', 0):.0f} m")
+                                    st.caption(t.get("sport", ""))
+                                    st.caption(fmt_duration(t.get("duration", 0)))
+                                    if t.get("distance"):
+                                        st.caption(f"{t['distance']:.1f} km")
 
     except Exception as e:
         st.error(f"Error: {e}")
