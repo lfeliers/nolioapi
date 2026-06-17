@@ -9,7 +9,18 @@ from db.mongo import upsert_athlete, upsert_training
 st.set_page_config(page_title="Nolio Integration", page_icon="🔗", layout="wide")
 
 st.markdown(
-    "<style>[data-testid='stSidebarNav'], [data-testid='stSidebar'] { display: none; }</style>",
+    """
+    <style>
+    [data-testid='stSidebarNav'], [data-testid='stSidebar'] { display: none; }
+
+    /* Make the first column scrollable at a fixed height */
+    [data-testid="stHorizontalBlock"] > div:first-child {
+        height: 75vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    </style>
+    """,
     unsafe_allow_html=True,
 )
 
