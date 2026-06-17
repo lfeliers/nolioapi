@@ -12,12 +12,18 @@ st.title("Nolio Integration")
 
 token = st.session_state.get("nolio_token")
 
+
+@st.cache_data(ttl=300, show_spinner="Fetching athletes…")
+def fetch_athletes(token: str) -> list[dict]:
+    return get_athletes(token)
+
+
 if not token:
     st.info("Link your Nolio account using the button above.")
 else:
     st.subheader("Athletes")
     try:
-        athletes = get_athletes(token)
+        athletes = fetch_athletes(token)
         for athlete in athletes:
             upsert_athlete(athlete)
             if st.button(athlete.get("name"), key=f"athlete_{athlete['nolio_id']}"):
