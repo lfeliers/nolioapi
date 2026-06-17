@@ -47,6 +47,16 @@ def refresh_access_token(refresh_token: str) -> dict:
     return resp.json()
 
 
+def get_trainings(token: str, athlete_id: int, from_date: str, to_date: str) -> list[dict]:
+    resp = requests.get(
+        f"{BASE_URL}/get/training/",
+        headers={"Authorization": f"Bearer {token}"},
+        params={"athlete_id": athlete_id, "from": from_date, "to": to_date, "limit": 300},
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
 def get_athletes(token: str) -> list[dict]:
     resp = requests.get(
         f"{BASE_URL}/get/athletes/",

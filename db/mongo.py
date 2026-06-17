@@ -22,6 +22,10 @@ def _get_athletes_collection() -> Collection:
     return _get_db()["athletes"]
 
 
+def _get_trainings_collection() -> Collection:
+    return _get_db()["trainings"]
+
+
 def upsert_user(
     user_id: str,
     token: str,
@@ -75,3 +79,21 @@ def get_athlete(nolio_id: int) -> dict | None:
 
 def get_all_athletes() -> list[dict]:
     return list(_get_athletes_collection().find())
+
+
+def upsert_training(training: dict, athlete_id: int) -> None:
+    col = _get_trainings_collection()
+    col.update_one(
+        {"_id": training["nolio_id"]},
+        {"$set": {**training, "athlete_id": athlete_id, "synced_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+
+
+def get_trainings_for_athlete(athlete_id: int, from_date: str, to_date: str) -> list[dict]:
+    return list(
+        _get_trainings_collection().find(
+            {"athlete_id": athlete_id, "date_start": {"$gte": from_date, "$lte": to_date}},
+            sort=[("date_start", -1)],
+        )
+    )
