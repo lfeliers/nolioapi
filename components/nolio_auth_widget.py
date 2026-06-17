@@ -98,10 +98,16 @@ def render_navbar() -> None:
         <style>
         .block-container { padding-top: 4rem !important; }
 
-        /* style Streamlit's own header element */
-        [data-testid="stHeader"] {
-            background: #1a1c24 !important;
-            border-bottom: 1px solid #ef4444;
+        [data-testid="stHeader"] { display: none; }
+        .block-container { padding-top: 3.5rem !important; }
+
+        .nolio-navbar-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 3rem;
+            background: #262730;
+            border-bottom: 1px solid #3d3d3d;
+            z-index: 999;
         }
 
         /* scope scrollable-column rule to main content only */
@@ -111,6 +117,7 @@ def render_navbar() -> None:
             overflow-x: hidden;
         }
         </style>
+        <div class="nolio-navbar-bg"></div>
         """,
         unsafe_allow_html=True,
     )
