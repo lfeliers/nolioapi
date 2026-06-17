@@ -98,14 +98,10 @@ def render_navbar() -> None:
         <style>
         .block-container { padding-top: 4rem !important; }
 
-        /* fixed background bar */
-        .nolio-navbar-bg {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 3.5rem;
-            background: #1a1c24;
+        /* style Streamlit's own header element */
+        [data-testid="stHeader"] {
+            background: #1a1c24 !important;
             border-bottom: 1px solid #ef4444;
-            z-index: 998;
         }
 
         /* scope scrollable-column rule to main content only */
@@ -115,7 +111,6 @@ def render_navbar() -> None:
             overflow-x: hidden;
         }
         </style>
-        <div class="nolio-navbar-bg"></div>
         """,
         unsafe_allow_html=True,
     )
