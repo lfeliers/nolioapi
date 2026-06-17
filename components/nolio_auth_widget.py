@@ -96,19 +96,8 @@ def render_navbar() -> None:
     st.markdown(
         """
         <style>
-        .block-container { padding-top: 4rem !important; }
-
         [data-testid="stHeader"] { display: none; }
         .block-container { padding-top: 3.5rem !important; }
-
-        .nolio-navbar-bg {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 3rem;
-            background: #262730;
-            border-bottom: 1px solid #3d3d3d;
-            z-index: 999;
-        }
 
         /* scope scrollable-column rule to main content only */
         div.main div[data-testid="stHorizontalBlock"] > div:first-child {
@@ -116,8 +105,17 @@ def render_navbar() -> None:
             overflow-y: auto;
             overflow-x: hidden;
         }
+
+        /* lift the navbar row to overlap the top of the page */
+        div[data-testid="stMainBlockContainer"] > div > div[data-testid="stVerticalBlock"] > div:nth-child(1) {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #262730;
+            border-bottom: 1px solid #3d3d3d;
+            padding: 0.5rem 1rem;
+            z-index: 999;
+        }
         </style>
-        <div class="nolio-navbar-bg"></div>
         """,
         unsafe_allow_html=True,
     )
