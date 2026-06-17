@@ -19,17 +19,18 @@ token = st.session_state.get("nolio_token")
 
 
 @st.cache_data(ttl=300, show_spinner="Fetching athletes…")
-def fetch_athletes(token: str) -> list[dict]:
-    return get_athletes(token)
+def fetch_and_sync_athletes(token: str) -> list[dict]:
+    athletes = get_athletes(token)
+    for athlete in athletes:
+        upsert_athlete(athlete)
+    return athletes
 
 
 if not token:
     st.info("Link your Nolio account using the button above.")
 else:
     try:
-        athletes = fetch_athletes(token)
-        for athlete in athletes:
-            upsert_athlete(athlete)
+        athletes = fetch_and_sync_athletes(token)
 
         col_list, col_detail = st.columns([1, 3])
 
