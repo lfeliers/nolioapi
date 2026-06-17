@@ -98,36 +98,29 @@ def render_navbar() -> None:
         <style>
         .block-container { padding-top: 4rem !important; }
 
-        div[data-testid="stVerticalBlock"]:has(> div[data-testid="stVerticalBlockBorderWrapper"] .nolio-navbar-anchor) {
-            background: #0f1117;
-            border-bottom: 1px solid #2d2d2d;
+        /* fixed background bar */
+        .nolio-navbar-bg {
             position: fixed;
             top: 0; left: 0; right: 0;
-            z-index: 999;
-            padding: 0.2rem 1rem;
+            height: 3.5rem;
+            background: #1a1c24;
+            border-bottom: 1px solid #ef4444;
+            z-index: 998;
         }
 
-        /* scope scrollable-column rule to the main content block only */
+        /* scope scrollable-column rule to main content only */
         div.main div[data-testid="stHorizontalBlock"] > div:first-child {
             height: 75vh;
             overflow-y: auto;
             overflow-x: hidden;
         }
-
-        /* navbar row: align right column to the right */
-        div[data-testid="stVerticalBlock"]:has(.nolio-navbar-anchor) [data-testid="stHorizontalBlock"] > div:last-child {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
         </style>
+        <div class="nolio-navbar-bg"></div>
         """,
         unsafe_allow_html=True,
     )
 
-    with st.container():
-        st.markdown("<span class='nolio-navbar-anchor'></span>", unsafe_allow_html=True)
-        _, right = st.columns([6, 1])
+    _, right = st.columns([6, 1])
     with right:
         if linked:
             st.markdown(
