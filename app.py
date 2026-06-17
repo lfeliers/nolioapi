@@ -6,6 +6,11 @@ from db.mongo import upsert_athlete
 
 st.set_page_config(page_title="Nolio Integration", page_icon="🔗", layout="wide")
 
+st.markdown(
+    "<style>[data-testid='stSidebarNav'], [data-testid='stSidebar'] { display: none; }</style>",
+    unsafe_allow_html=True,
+)
+
 render_navbar()
 
 st.title("Nolio Integration")
