@@ -1,10 +1,9 @@
-import hashlib
 import os
 import secrets
 
 import streamlit as st
 
-from auth.nolio_auth import exchange_code_for_token, get_authorize_url
+from auth.nolio_auth import exchange_code_for_token, get_authorize_url, get_user
 from db.mongo import delete_user, upsert_user
 
 REDIRECT_URI = os.environ.get("NOLIO_REDIRECT_URI", "http://localhost:8501")
@@ -26,15 +25,17 @@ if "code" in params and "nolio_token" not in st.session_state:
             try:
                 token_data = exchange_code_for_token(code, REDIRECT_URI)
                 access_token = token_data["access_token"]
-                user_id = hashlib.sha256(access_token.encode()).hexdigest()[:16]
+                profile = get_user(access_token)
+                user_id = str(profile["id"])
                 upsert_user(
                     user_id=user_id,
                     token=access_token,
                     token_type=token_data.get("token_type", "Bearer"),
-                    profile={},
+                    profile=profile,
                 )
                 st.session_state["nolio_token"] = access_token
                 st.session_state["nolio_user_id"] = user_id
+                st.session_state["nolio_profile"] = profile
                 st.session_state["oauth_state"] = secrets.token_urlsafe(16)
                 st.query_params.clear()
                 st.rerun()
@@ -43,13 +44,16 @@ if "code" in params and "nolio_token" not in st.session_state:
 
 # Linked state
 if "nolio_token" in st.session_state:
-    st.success("Nolio account linked!")
+    profile = st.session_state.get("nolio_profile", {})
+    st.success(f"Nolio account linked — {profile.get('email', profile.get('username', ''))}")
+    st.json(profile)
     if st.button("Unlink Account"):
         user_id = st.session_state.get("nolio_user_id")
         if user_id:
             delete_user(user_id)
         st.session_state.pop("nolio_token", None)
         st.session_state.pop("nolio_user_id", None)
+        st.session_state.pop("nolio_profile", None)
         st.rerun()
 else:
     st.write("Connect your Nolio account to get started.")

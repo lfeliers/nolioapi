@@ -29,3 +29,12 @@ def exchange_code_for_token(code: str, redirect_uri: str) -> dict:
     )
     resp.raise_for_status()
     return resp.json()
+
+
+def get_user(token: str) -> dict:
+    resp = requests.get(
+        f"{BASE_URL}/get/user/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    resp.raise_for_status()
+    return resp.json()
