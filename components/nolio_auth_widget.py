@@ -99,20 +99,21 @@ def render_navbar() -> None:
         [data-testid="stHeader"] { display: none; }
         .block-container { padding-top: 3.5rem !important; }
 
-        /* scope scrollable-column rule to main content only */
+        /* scrollable athlete list column */
         div.main div[data-testid="stHorizontalBlock"] > div:first-child {
             height: 75vh;
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-        /* lift the navbar row to overlap the top of the page */
-        div[data-testid="stMainBlockContainer"] > div > div[data-testid="stVerticalBlock"] > div:nth-child(1) {
+        /* navbar: the 2nd direct child of stVerticalBlock is the columns row
+           (1st child is this <style> markdown element) */
+        div[data-testid="stVerticalBlock"] > div:nth-child(2) {
             position: fixed;
             top: 0; left: 0; right: 0;
-            background: #262730;
-            border-bottom: 1px solid #3d3d3d;
-            padding: 0.5rem 1rem;
+            background: #f0f2f6;
+            border-bottom: 1px solid #d0d0d0;
+            padding: 0.25rem 1.5rem;
             z-index: 999;
         }
         </style>
