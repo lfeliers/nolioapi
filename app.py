@@ -95,12 +95,24 @@ else:
                             st.markdown(f"**{day.strftime('%a')}**")
                             st.caption(day.strftime("%d %b"))
                             for t in by_day.get(day_str, []):
-                                with st.container(border=True):
-                                    st.markdown(f"**{t.get('name', '—')}**")
-                                    st.caption(t.get("sport", ""))
-                                    st.caption(fmt_duration(t.get("duration", 0)))
-                                    if t.get("distance"):
-                                        st.caption(f"{t['distance']:.1f} km")
+                                distance = f"<div style='font-size:0.75rem;color:#fca5a5;'>{t['distance']:.1f} km</div>" if t.get("distance") else ""
+                                st.markdown(
+                                    f"""
+                                    <div style="
+                                        background:#450a0a;
+                                        border:1px solid #7f1d1d;
+                                        border-radius:8px;
+                                        padding:0.6rem 0.75rem;
+                                        margin-bottom:0.5rem;
+                                    ">
+                                        <div style="font-size:0.85rem;font-weight:600;color:#fecaca;">{t.get("name", "—")}</div>
+                                        <div style="font-size:0.75rem;color:#fca5a5;">{t.get("sport", "")}</div>
+                                        <div style="font-size:0.75rem;color:#fca5a5;">{fmt_duration(t.get("duration", 0))}</div>
+                                        {distance}
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True,
+                                )
 
     except Exception as e:
         st.error(f"Error: {e}")
