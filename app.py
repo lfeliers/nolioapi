@@ -17,10 +17,9 @@ else:
     st.subheader("Athletes")
     try:
         athletes = get_athletes(token)
-        print("Athletes response:", athletes)
         if athletes:
             for athlete in athletes:
-                st.write(f"**{athlete.get('first_name', '')} {athlete.get('last_name', '')}** — ID: `{athlete.get('id')}`")
+                st.write(f"**{athlete.get('name')}** — ID: `{athlete.get('nolio_id')}`")
         else:
             st.write("No athletes found.")
     except Exception as e:
