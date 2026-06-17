@@ -43,6 +43,11 @@ def get_user(user_id: str) -> dict | None:
     return col.find_one({"_id": user_id})
 
 
+def get_any_user() -> dict | None:
+    """Returns the single stored user, or None if the collection is empty."""
+    return _get_collection().find_one()
+
+
 def delete_user(user_id: str) -> None:
     col = _get_collection()
     col.delete_one({"_id": user_id})

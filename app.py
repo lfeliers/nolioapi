@@ -9,7 +9,7 @@ from auth.nolio_auth import (
     get_user,
     refresh_access_token,
 )
-from db.mongo import delete_user, get_user as db_get_user, upsert_user
+from db.mongo import delete_user, get_any_user, get_user as db_get_user, upsert_user
 
 REDIRECT_URI = os.environ.get("NOLIO_REDIRECT_URI", "http://localhost:8501")
 
@@ -19,35 +19,46 @@ st.title("Nolio Integration")
 if "oauth_state" not in st.session_state:
     st.session_state["oauth_state"] = secrets.token_urlsafe(16)
 
+# On cold load, restore session from DB if an account is already stored
+if "nolio_user_id" not in st.session_state:
+    db_user = get_any_user()
+    if db_user:
+        st.session_state["nolio_user_id"] = str(db_user["_id"])
+        st.session_state["nolio_profile"] = db_user.get("profile", {})
+
 params = st.query_params
 
-# Handle OAuth callback
+# Handle OAuth callback — only if no account is linked yet
 if "code" in params and "nolio_token" not in st.session_state:
-    code = params["code"]
-    with st.spinner("Linking your Nolio account…"):
-        try:
-            token_data = exchange_code_for_token(code, REDIRECT_URI)
-            access_token = token_data["access_token"]
-            refresh_token = token_data.get("refresh_token", "")
-            profile = get_user(access_token)
-            user_id = str(profile["id"])
-            upsert_user(
-                user_id=user_id,
-                token=access_token,
-                token_type=token_data.get("token_type", "Bearer"),
-                profile=profile,
-                refresh_token=refresh_token,
-            )
-            st.session_state["nolio_token"] = access_token
-            st.session_state["nolio_user_id"] = user_id
-            st.session_state["nolio_profile"] = profile
-            st.session_state["oauth_state"] = secrets.token_urlsafe(16)
-            st.query_params.clear()
-            st.rerun()
-        except Exception as e:
-            st.error(f"Failed to link account: {e}")
+    if "nolio_user_id" in st.session_state:
+        st.warning("An account is already linked. Unlink it first.")
+        st.query_params.clear()
+    else:
+        code = params["code"]
+        with st.spinner("Linking your Nolio account…"):
+            try:
+                token_data = exchange_code_for_token(code, REDIRECT_URI)
+                access_token = token_data["access_token"]
+                refresh_token = token_data.get("refresh_token", "")
+                profile = get_user(access_token)
+                user_id = str(profile["id"])
+                upsert_user(
+                    user_id=user_id,
+                    token=access_token,
+                    token_type=token_data.get("token_type", "Bearer"),
+                    profile=profile,
+                    refresh_token=refresh_token,
+                )
+                st.session_state["nolio_token"] = access_token
+                st.session_state["nolio_user_id"] = user_id
+                st.session_state["nolio_profile"] = profile
+                st.session_state["oauth_state"] = secrets.token_urlsafe(16)
+                st.query_params.clear()
+                st.rerun()
+            except Exception as e:
+                st.error(f"Failed to link account: {e}")
 
-# Auto-refresh: if session has a user_id but no token, try refresh from DB
+# Auto-refresh: session knows user_id but has no token — try stored refresh_token
 if "nolio_user_id" in st.session_state and "nolio_token" not in st.session_state:
     user_id = st.session_state["nolio_user_id"]
     db_user = db_get_user(user_id)
@@ -67,11 +78,10 @@ if "nolio_user_id" in st.session_state and "nolio_token" not in st.session_state
             st.session_state["nolio_profile"] = db_user.get("profile", {})
             st.rerun()
         except RuntimeError:
-            # refresh_token revoked — force re-auth
             st.session_state.pop("nolio_user_id", None)
 
-# Linked state
-if "nolio_token" in st.session_state:
+# --- UI ---
+if "nolio_user_id" in st.session_state:
     profile = st.session_state.get("nolio_profile", {})
     st.success(f"Nolio account linked — {profile.get('email', profile.get('username', ''))}")
     st.json(profile)
