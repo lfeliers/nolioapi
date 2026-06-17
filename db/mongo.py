@@ -7,12 +7,19 @@ from pymongo.collection import Collection
 _client: MongoClient | None = None
 
 
-def _get_collection() -> Collection:
+def _get_db():
     global _client
     if _client is None:
         _client = MongoClient(os.environ["MONGODB_URI"])
-    db_name = os.environ.get("MONGODB_DB", "nolioapi")
-    return _client[db_name]["users"]
+    return _client[os.environ.get("MONGODB_DB", "nolioapi")]
+
+
+def _get_collection() -> Collection:
+    return _get_db()["users"]
+
+
+def _get_athletes_collection() -> Collection:
+    return _get_db()["athletes"]
 
 
 def upsert_user(
@@ -51,3 +58,20 @@ def get_any_user() -> dict | None:
 def delete_user(user_id: str) -> None:
     col = _get_collection()
     col.delete_one({"_id": user_id})
+
+
+def upsert_athlete(athlete: dict) -> None:
+    col = _get_athletes_collection()
+    col.update_one(
+        {"_id": athlete["nolio_id"]},
+        {"$set": {**athlete, "synced_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+
+
+def get_athlete(nolio_id: int) -> dict | None:
+    return _get_athletes_collection().find_one({"_id": nolio_id})
+
+
+def get_all_athletes() -> list[dict]:
+    return list(_get_athletes_collection().find())
