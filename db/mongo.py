@@ -15,13 +15,20 @@ def _get_collection() -> Collection:
     return _client[db_name]["users"]
 
 
-def upsert_user(user_id: str, token: str, token_type: str, profile: dict) -> None:
+def upsert_user(
+    user_id: str,
+    token: str,
+    token_type: str,
+    profile: dict,
+    refresh_token: str = "",
+) -> None:
     col = _get_collection()
     col.update_one(
         {"_id": user_id},
         {
             "$set": {
                 "access_token": token,
+                "refresh_token": refresh_token,
                 "token_type": token_type,
                 "fetched_at": datetime.now(timezone.utc).isoformat(),
                 "profile": profile,

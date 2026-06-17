@@ -31,6 +31,22 @@ def exchange_code_for_token(code: str, redirect_uri: str) -> dict:
     return resp.json()
 
 
+def refresh_access_token(refresh_token: str) -> dict:
+    """Returns new token dict. CRITICAL: store the new refresh_token — old one is invalidated."""
+    resp = requests.post(
+        f"{BASE_URL}/token/",
+        auth=(CLIENT_ID, CLIENT_SECRET),
+        data={
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
+        },
+    )
+    if resp.status_code == 400:
+        raise RuntimeError("refresh_token invalid or revoked — full re-auth required")
+    resp.raise_for_status()
+    return resp.json()
+
+
 def get_user(token: str) -> dict:
     resp = requests.get(
         f"{BASE_URL}/get/user/",

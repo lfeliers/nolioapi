@@ -49,10 +49,6 @@ def handle_planned(payload: dict) -> None:
 
 def dispatch(payload: dict) -> None:
     notif_type = payload["notif_type"]
-    livemode = payload["livemode"]
-
-    if not livemode:
-        logger.info("[test delivery] notif_type=%s", notif_type)
 
     # Check "planned" BEFORE "event" — new_planned_event contains both substrings
     if "planned" in notif_type:
