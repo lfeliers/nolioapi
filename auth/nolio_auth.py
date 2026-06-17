@@ -2,7 +2,7 @@ import os
 
 import requests
 
-CLIENT_ID = "zu5tAhsMKaMv23BHK4eUO6o5NwOVUB0uDULy7Udf"
+CLIENT_ID = os.environ.get("NOLIO_CLIENT_ID", "")
 CLIENT_SECRET = os.environ.get("NOLIO_CLIENT_SECRET", "")
 BASE_URL = "https://www.nolio.io/api"
 
